@@ -19,6 +19,7 @@ function verifyToken(req, res, next) {
     req.user = decoded; // attach user info (userId, role) to the request
     next(); // let it continue to the actual route
   } catch (error) {
+    
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 }

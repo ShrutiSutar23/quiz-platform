@@ -1,3 +1,4 @@
+const { verifyToken, verifyAdmin } = require("../middleware/auth");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -83,5 +84,7 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
+
 
 module.exports = router;
