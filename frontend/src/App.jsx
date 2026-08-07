@@ -1,9 +1,21 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+
 function App() {
   return (
-    <h1 className="text-3xl font-bold text-blue-600">
-      Tailwind is working!
-    </h1>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
