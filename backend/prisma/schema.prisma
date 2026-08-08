@@ -17,3 +17,30 @@ model User {
 
   @@map("users")
 }
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  quizzes     Quiz[]
+
+  @@map("categories")
+}
+
+model Quiz {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String?
+  categoryId     Int
+  category       Category @relation(fields: [categoryId], references: [id])
+  difficulty     String   @default("Beginner")
+  duration       Int      // in minutes
+  passingScore   Int      @default(60)
+  maxAttempts    Int      @default(1)
+  status         String   @default("DRAFT") // DRAFT, PUBLISHED, UNPUBLISHED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("quizzes")
+}
