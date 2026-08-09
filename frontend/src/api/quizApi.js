@@ -24,3 +24,12 @@ export const getCategories = () => api.get("/categories");
 
 export const createCategory = (data) =>
   api.post("/categories", data, getAuthHeader());
+
+export const getQuestions = (quizId) =>
+  api.get(`/questions/quiz/${quizId}`, getAuthHeader());
+
+export const createQuestion = (data) =>
+  api.post("/questions", data, getAuthHeader());
+
+export const deleteQuestion = (id) =>
+  api.delete(`/questions/${id}`, getAuthHeader());

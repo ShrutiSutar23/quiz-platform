@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createQuiz, getCategories } from "../api/quizApi";
+import { createQuiz, getCategories, createCategory } from "../api/quizApi";
 
 function CreateQuiz() {
   const [categories, setCategories] = useState([]);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -17,22 +20,53 @@ function CreateQuiz() {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const loadCategories = () => {
     getCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
+    loadCategories();
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "categoryId" && value === "OTHER") {
+      setShowNewCategory(true);
+      setForm({ ...form, categoryId: "" });
+      return;
+    }
+
+    setShowNewCategory(false);
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
     try {
-      await createQuiz(form);
+      let finalCategoryId = form.categoryId;
+
+      // If admin typed a new category, create it first
+      if (showNewCategory) {
+        if (!newCategoryName.trim()) {
+          setError("Please enter a category name");
+          return;
+        }
+        const catRes = await createCategory({ name: newCategoryName.trim() });
+        finalCategoryId = catRes.data.id;
+      }
+
+      if (!finalCategoryId) {
+        setError("Please select or add a category");
+        return;
+      }
+
+      await createQuiz({ ...form, categoryId: finalCategoryId });
       setSuccess("Quiz created successfully!");
       setTimeout(() => navigate("/admin/quizzes"), 1000);
     } catch (err) {
@@ -86,10 +120,10 @@ function CreateQuiz() {
             <label className="block text-sm font-medium mb-1">Category</label>
             <select
               name="categoryId"
-              value={form.categoryId}
+              value={showNewCategory ? "OTHER" : form.categoryId}
               onChange={handleChange}
               className="w-full border p-2 rounded"
-              required
+              required={!showNewCategory}
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
@@ -97,7 +131,19 @@ function CreateQuiz() {
                   {cat.name}
                 </option>
               ))}
+              <option value="OTHER">+ Other (add new category)</option>
             </select>
+
+            {showNewCategory && (
+              <input
+                type="text"
+                placeholder="Type new category name"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                className="w-full border p-2 rounded mt-2"
+                required
+              />
+            )}
           </div>
 
           <div>

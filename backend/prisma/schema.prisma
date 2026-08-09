@@ -41,6 +41,31 @@ model Quiz {
   status         String   @default("DRAFT") // DRAFT, PUBLISHED, UNPUBLISHED
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  questions      Question[]
 
   @@map("quizzes")
+}
+
+model Question {
+  id           Int      @id @default(autoincrement())
+  quizId       Int
+  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questionText String
+  marks        Int      @default(1)
+  explanation  String?
+  difficulty   String   @default("Beginner")
+  createdAt    DateTime @default(now())
+  options      Option[]
+
+  @@map("questions")
+}
+
+model Option {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionText String
+  isCorrect  Boolean  @default(false)
+
+  @@map("options")
 }

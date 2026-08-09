@@ -18,7 +18,10 @@ function AdminDashboard() {
       <p className="text-gray-600">Role: {user?.role}</p>
       <div className="mt-6">
         <a href="/admin/quizzes" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
-          Manage Quizzes
+            Manage Quizzes
+        </a>
+        <a href="/admin/categories" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 inline-block">
+            Manage Categories
         </a>
       </div>
     </div>

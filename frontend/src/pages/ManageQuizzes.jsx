@@ -90,6 +90,12 @@ function ManageQuizzes() {
                     </span>
                   </td>
                   <td className="p-3 space-x-2">
+                    <Link
+                      to={`/admin/quizzes/${quiz.id}/questions`}
+                      className="text-purple-600 hover:underline text-sm"
+                    >
+                      Questions
+                    </Link>
                     <button
                       onClick={() => handleTogglePublish(quiz)}
                       className="text-blue-600 hover:underline text-sm"
