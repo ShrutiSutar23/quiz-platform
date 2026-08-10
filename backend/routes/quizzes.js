@@ -4,11 +4,25 @@ const { verifyToken, verifyAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// GET all quizzes (public sees only PUBLISHED, admin sees all)
+// GET all quizzes (public sees only PUBLISHED, with search & filter)
 router.get("/", async (req, res) => {
   try {
+    const { search, categoryId, difficulty } = req.query;
+
+    const where = { status: "PUBLISHED" };
+
+    if (search) {
+      where.title = { contains: search, mode: "insensitive" };
+    }
+    if (categoryId) {
+      where.categoryId = parseInt(categoryId);
+    }
+    if (difficulty) {
+      where.difficulty = difficulty;
+    }
+
     const quizzes = await prisma.quiz.findMany({
-      where: { status: "PUBLISHED" },
+      where,
       include: { category: true },
       orderBy: { createdAt: "desc" },
     });

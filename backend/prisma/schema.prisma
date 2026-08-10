@@ -14,6 +14,7 @@ model User {
   role      String   @default("STUDENT")
   status    String   @default("ACTIVE")
   createdAt DateTime @default(now())
+  attempts  Attempt[]
 
   @@map("users")
 }
@@ -42,6 +43,7 @@ model Quiz {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   questions      Question[]
+  attempts       Attempt[]
 
   @@map("quizzes")
 }
@@ -56,6 +58,7 @@ model Question {
   difficulty   String   @default("Beginner")
   createdAt    DateTime @default(now())
   options      Option[]
+  answers      Answer[]
 
   @@map("questions")
 }
@@ -68,4 +71,36 @@ model Option {
   isCorrect  Boolean  @default(false)
 
   @@map("options")
+}
+
+model Attempt {
+  id               Int       @id @default(autoincrement())
+  quizId           Int
+  quiz             Quiz      @relation(fields: [quizId], references: [id])
+  userId           Int
+  user             User      @relation(fields: [userId], references: [id])
+  score            Int       @default(0)
+  percentage       Float     @default(0)
+  correctAnswers   Int       @default(0)
+  incorrectAnswers Int       @default(0)
+  unanswered       Int       @default(0)
+  timeTaken        Int       @default(0) // in seconds
+  status           String    @default("IN_PROGRESS") // IN_PROGRESS, PASSED, FAILED
+  startedAt        DateTime  @default(now())
+  completedAt      DateTime?
+  answers          Answer[]
+
+  @@map("attempts")
+}
+
+model Answer {
+  id               Int      @id @default(autoincrement())
+  attemptId        Int
+  attempt          Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId       Int
+  question         Question @relation(fields: [questionId], references: [id])
+  selectedOptionId Int?
+  isCorrect        Boolean  @default(false)
+
+  @@map("answers")
 }

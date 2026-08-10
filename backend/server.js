@@ -6,12 +6,14 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
 const categoryRoutes = require("./routes/categories");
+const attemptRoutes = require("./routes/attempts");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/questions", questionRoutes);
+app.use("/api/attempts", attemptRoutes);
 
 
 app.get("/", (req, res) => {
