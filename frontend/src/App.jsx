@@ -9,6 +9,8 @@ import ManageQuestions from "./pages/ManageQuestions";
 import ManageCategories from "./pages/ManageCategories";
 import BrowseQuizzes from "./pages/BrowseQuizzes";
 import QuizDetails from "./pages/QuizDetails";
+import QuizAttempt from "./pages/QuizAttempt";
+import QuizResult from "./pages/QuizResult";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         <Route path="/admin/categories" element={<ManageCategories />} />
         <Route path="/student/quizzes" element={<BrowseQuizzes />} />
         <Route path="/student/quizzes/:id" element={<QuizDetails />} />
+        <Route path="/student/quizzes/:id/attempt" element={<QuizAttempt />} />
+        <Route path="/student/results/:attemptId" element={<QuizResult />} />
       </Routes>
     </BrowserRouter>
   );
