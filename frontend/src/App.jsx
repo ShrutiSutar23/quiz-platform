@@ -11,6 +11,7 @@ import BrowseQuizzes from "./pages/BrowseQuizzes";
 import QuizDetails from "./pages/QuizDetails";
 import QuizAttempt from "./pages/QuizAttempt";
 import QuizResult from "./pages/QuizResult";
+import AttemptHistory from "./pages/AttemptHistory";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/student/quizzes/:id" element={<QuizDetails />} />
         <Route path="/student/quizzes/:id/attempt" element={<QuizAttempt />} />
         <Route path="/student/results/:attemptId" element={<QuizResult />} />
+        <Route path="/student/history" element={<AttemptHistory />} />
       </Routes>
     </BrowserRouter>
   );

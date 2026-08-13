@@ -18,7 +18,6 @@ router.post("/start/:quizId", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "Quiz not available" });
     }
 
-    // Check how many times this student has already attempted this quiz
     const previousAttempts = await prisma.attempt.count({
       where: { quizId: parseInt(quizId), userId, status: { not: "IN_PROGRESS" } },
     });
@@ -27,7 +26,6 @@ router.post("/start/:quizId", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "Maximum attempts reached for this quiz" });
     }
 
-    // Create a new attempt record
     const attempt = await prisma.attempt.create({
       data: {
         quizId: parseInt(quizId),
@@ -36,7 +34,6 @@ router.post("/start/:quizId", verifyToken, async (req, res) => {
       },
     });
 
-    // Get questions WITHOUT revealing correct answers
     const questions = await prisma.question.findMany({
       where: { quizId: parseInt(quizId) },
       select: {
@@ -47,7 +44,6 @@ router.post("/start/:quizId", verifyToken, async (req, res) => {
           select: {
             id: true,
             optionText: true,
-            // isCorrect is NOT selected - hidden from student
           },
         },
       },
@@ -73,7 +69,7 @@ router.post("/start/:quizId", verifyToken, async (req, res) => {
 router.post("/submit/:attemptId", verifyToken, async (req, res) => {
   try {
     const { attemptId } = req.params;
-    const { answers } = req.body; // [{ questionId, selectedOptionId }]
+    const { answers } = req.body;
     const userId = req.user.userId;
 
     const attempt = await prisma.attempt.findUnique({
@@ -88,7 +84,6 @@ router.post("/submit/:attemptId", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "This attempt is already submitted" });
     }
 
-    // Get all questions with correct answers (only backend sees this)
     const questions = await prisma.question.findMany({
       where: { quizId: attempt.quizId },
       include: { options: true },
@@ -137,12 +132,10 @@ router.post("/submit/:attemptId", verifyToken, async (req, res) => {
 
     const percentage = totalMarks > 0 ? (obtainedMarks / totalMarks) * 100 : 0;
     const status = percentage >= attempt.quiz.passingScore ? "PASSED" : "FAILED";
-    const timeTaken = Math.floor((new Date() - attempt.startedAt) / 1000); // seconds
+    const timeTaken = Math.floor((new Date() - attempt.startedAt) / 1000);
 
-    // Save all answers
     await prisma.answer.createMany({ data: answerRecords });
 
-    // Update attempt with final results
     const updatedAttempt = await prisma.attempt.update({
       where: { id: attempt.id },
       data: {
@@ -158,6 +151,48 @@ router.post("/submit/:attemptId", verifyToken, async (req, res) => {
     });
 
     res.json(updatedAttempt);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+// GET student dashboard stats (MUST be above /:attemptId)
+router.get("/stats/summary", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const attempts = await prisma.attempt.findMany({
+      where: { userId, status: { not: "IN_PROGRESS" } },
+    });
+
+    const totalAttempted = attempts.length;
+    const totalPassed = attempts.filter((a) => a.status === "PASSED").length;
+    const totalFailed = attempts.filter((a) => a.status === "FAILED").length;
+
+    const averageScore =
+      totalAttempted > 0
+        ? attempts.reduce((sum, a) => sum + a.percentage, 0) / totalAttempted
+        : 0;
+
+    const highestScore =
+      totalAttempted > 0
+        ? Math.max(...attempts.map((a) => a.percentage))
+        : 0;
+
+    const totalQuestionsAnswered = attempts.reduce(
+      (sum, a) => sum + a.correctAnswers + a.incorrectAnswers,
+      0
+    );
+
+    res.json({
+      totalAttempted,
+      totalPassed,
+      totalFailed,
+      averageScore: Math.round(averageScore * 100) / 100,
+      highestScore: Math.round(highestScore * 100) / 100,
+      totalQuestionsAnswered,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });

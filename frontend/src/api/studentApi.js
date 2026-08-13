@@ -19,3 +19,5 @@ export const getAttemptResult = (attemptId) =>
   api.get(`/attempts/${attemptId}`, getAuthHeader());
 
 export const getMyAttempts = () => api.get("/attempts", getAuthHeader());
+
+export const getStudentStats = () => api.get("/attempts/stats/summary", getAuthHeader());
