@@ -83,5 +83,121 @@ router.get("/recent-attempts", verifyToken, verifyAdmin, async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+// GET all students with their stats
+router.get("/users", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const students = await prisma.user.findMany({
+      where: { role: "STUDENT" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        createdAt: true,
+        attempts: {
+          where: { status: { not: "IN_PROGRESS" } },
+          select: { percentage: true, status: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const result = students.map((s) => {
+      const totalAttempts = s.attempts.length;
+      const avgScore =
+        totalAttempts > 0
+          ? s.attempts.reduce((sum, a) => sum + a.percentage, 0) / totalAttempts
+          : 0;
+      const highestScore =
+        totalAttempts > 0 ? Math.max(...s.attempts.map((a) => a.percentage)) : 0;
+
+      return {
+        id: s.id,
+        name: s.name,
+        email: s.email,
+        status: s.status,
+        createdAt: s.createdAt,
+        totalAttempts,
+        avgScore: Math.round(avgScore * 100) / 100,
+        highestScore: Math.round(highestScore * 100) / 100,
+      };
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+// TOGGLE activate/deactivate a student
+router.patch("/users/:id/status", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // "ACTIVE" or "INACTIVE"
+
+    const user = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: { status },
+    });
+
+    res.json({ message: "Status updated", user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+// DELETE a student account
+router.delete("/users/:id", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.user.delete({ where: { id: parseInt(id) } });
+    res.json({ message: "User deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+// GET leaderboard (top students by average score)
+router.get("/leaderboard", async (req, res) => {
+  try {
+    const students = await prisma.user.findMany({
+      where: { role: "STUDENT" },
+      select: {
+        id: true,
+        name: true,
+        attempts: {
+          where: { status: { not: "IN_PROGRESS" } },
+          select: { percentage: true },
+        },
+      },
+    });
+
+    const leaderboard = students
+      .filter((s) => s.attempts.length > 0)
+      .map((s) => {
+        const totalAttempts = s.attempts.length;
+        const avgScore =
+          s.attempts.reduce((sum, a) => sum + a.percentage, 0) / totalAttempts;
+        return {
+          id: s.id,
+          name: s.name,
+          totalAttempts,
+          avgScore: Math.round(avgScore * 100) / 100,
+        };
+      })
+      .sort((a, b) => b.avgScore - a.avgScore)
+      .slice(0, 10);
+
+    res.json(leaderboard);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+module.exports = router;
 
 module.exports = router;

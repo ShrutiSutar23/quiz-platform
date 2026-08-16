@@ -12,6 +12,8 @@ import QuizDetails from "./pages/QuizDetails";
 import QuizAttempt from "./pages/QuizAttempt";
 import QuizResult from "./pages/QuizResult";
 import AttemptHistory from "./pages/AttemptHistory";
+import ManageUsers from "./pages/ManageUsers";
+import Leaderboard from "./pages/Leaderboard";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
         <Route path="/student/quizzes/:id/attempt" element={<QuizAttempt />} />
         <Route path="/student/results/:attemptId" element={<QuizResult />} />
         <Route path="/student/history" element={<AttemptHistory />} />
+        <Route path="/admin/users" element={<ManageUsers />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
       </Routes>
     </BrowserRouter>
   );

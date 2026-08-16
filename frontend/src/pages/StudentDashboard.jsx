@@ -36,6 +36,9 @@ function StudentDashboard() {
           <a href="/student/history" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 inline-block">
             Attempt History
           </a>
+          <a href="/leaderboard" className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 inline-block">
+            Leaderboard
+          </a>
         </div>
 
         {/* Stats Cards */}
