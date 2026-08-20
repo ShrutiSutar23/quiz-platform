@@ -46,16 +46,14 @@ Tailwind CSS
 React Router
 Axios
 Recharts (analytics charts)
-React Hook Form
+
 
 Backend
+Node.js and Express
 
-Flask / FastAPI / Django — replace with what you actually used
-REST API architecture
 
 Database
-
-PostgreSQL
+PostgreSQL-Supabase
 
 Authentication & Security
 
@@ -68,7 +66,7 @@ Run Locally
 bash
 # Start backend
 cd backend
-python app.py        # or: npm run dev / uvicorn main:app --reload
+node server.js
 
 # Start frontend (in a separate terminal)
 cd frontend
